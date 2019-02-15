@@ -1,0 +1,157 @@
+OpenVPN
+
+at $ prompt
+show interfaces | match /24
+
+
+Certificates
+
+configure
+set system date and time
+commit
+save
+exit
+
+sudo -i
+cd /usr/lib/ssl/misc
+
+./CA.sh -newca
+filename				= hit enter
+Passphrase				= (password)
+CountryName				= US
+stateorprovincename		= QUICKCONFIGS
+organizationName		= QUICKCONFIGS
+organizationUnit		= QUICKCONFIGS
+commonName				= ROOT
+
+cp demoCA/cacert.pem /config/auth
+cp demoCA/private/cakey.pem /config/auth
+
+./CA.sh -newreq
+optional - export SSLEAY_CONFIG="-days 3650"
+./CA.sh -sign
+
+CountryName				= US
+stateorprovincename		= QUICKCONFIGS
+localityName			= QUICKCONFIGS
+organizationName		= QUICKCONFIGS
+organizationUnit		= QUICKCONFIGS
+commonName				= SERVER
+
+mv newcert.pem /config/auth/SERVER.pem
+mv newkey.pem /config/auth/SERVER.key
+
+openssl dhparam -out /config/auth/DH.pem -2 1024
+
+./CA.sh -newreq
+./CA.sh -sign
+
+CountryName				= US
+stateorprovincename		= QUICKCONFIGS
+localityName			= QUICKCONFIGS
+organizationName		= QUICKCONFIGS
+organizationUnit		= QUICKCONFIGS
+commonName				= CLIENT
+
+mv newcert.pem /config/auth/CLIENT.pem
+mv newkey.pem /config/auth/CLIENT.key
+
+*** BRLOW COMMANDS ONE AT THE TIME
+openssl rsa -in /config/auth/SERVER.key -out /config/auth/SERVER-NOPASS.key
+
+openssl rsa -in /config/auth/CLIENT.key -out /config/auth/CLIENT-NOPASS.key
+
+EDGE ROUTER CONFIGS
+
+edit interfaces openvpn vtun0
+set mode server
+set description OpenVPN
+set encryption aes256
+set hash sha256
+set server subnet 172.16.0.0/24
+set server push-route 192.168.1.0/24
+set server name-server 8.8.8.8
+exit
+
+edit interfaces openvpn vtun0
+set tls ca-cert-file /config/auth/cacert.pem
+set tls cert-file /config/auth/SERVER.pem
+set tls key-file /config/auth/SERVER-NOPASS.key
+set tls ca-cert-file /config/auth/cacert.pem
+set tls dh-file /config/auth/DH.pem
+set openvpn-option "--comp-lzo no"
+exit
+
+edit firewall name WAN_LOCAL
+set default-action drop
+set rule 31 action accept
+set rule 31 description OpenVPN
+set rule 31 destination port 1194
+set rule 31 log disable
+set rule 31 protocol udp
+
+set rule 31 source address 10.10.10.10 (optional for a static ip)
+
+set rule 32 action accept
+set rule 32 description SSH
+set rule 32 destination port 22
+set rule 32 log disable
+set rule 32 protocol tcp
+set rule 32 source address 10.10.10.10 (optional for a static ip)
+
+set rule 33 action accept
+set rule 33 description HTTPS
+set rule 33 destination port 443
+set rule 33 log disable
+set rule 33 protocol tcp
+set rule 33 source address 10.10.10.10 (optional for a static ip)
+
+WAN_TO_LAN rule
+
+edit firewall name WAN_IN
+set default-action drop
+set rule 1 action accept
+set rule 1 description Established
+set rule 1 log disable
+set rule 1 protocol all
+set rule 1 state established enable
+set rule 1 state invalid disable
+set rule 1 state new disable
+set rule 1 state related enable
+
+Apply to Interface
+
+edit interfaces ethernet eth0
+set firewall in name WAN_IN
+set firewall local name WAN_LOCAL
+
+Misc Settings
+
+set service dns forwarding listen-on vtun0
+set service dns forwarding name-server 8.8.8.8
+
+Verify
+
+show openvpn status server
+
+=======
+
+Client on windows
+
+client
+dev tun
+proto udp
+remote 10.75.75.148 1194
+float
+comp-lzo yes
+push "comp-lzo yes"
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+verb 3
+auth SHA256
+cipher AES-256-CBC
+ca cacert.pem
+cert CLIENT.pem
+key CLIENT-NOPASS.key
