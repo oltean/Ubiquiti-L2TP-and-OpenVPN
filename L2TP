@@ -1,0 +1,28 @@
+l2tp config on ubiquiti edgerouter x
+ssh into the router
+
+configure
+
+set vpn ipsec ipsec-interfaces interface eth0
+set vpn ipsec nat-networks allowed-network 192.168.1.1/24
+set vpn ipsec nat-traversal enable
+
+set vpn l2tp remote-access authentication mode local
+set vpn l2tp remote-access authentication local-users username (username) password (password)
+
+set vpn l2tp remote-access client-ip-pool start 192.168.1.200
+set vpn l2tp remote-access client-ip-pool stop 192.168.1.250
+
+set vpn l2tp remote-access dns-servers server-1 8.8.8.8
+set vpn l2tp remote-access dns-servers server-2 4.2.2.2
+
+set vpn l2tp remote-access ipsec-settings authentication mode pre-shared-secret
+set vpn l2tp remote-access ipsec-settings authentication pre-shared-secret (secret word)
+set vpn l2tp remote-access ipsec-settings ike-lifetime 3600
+
+(static)
+set vpn l2tp remote-access outside-address (home public IP)
+or (dhcp)
+set vpn l2tp remote-access dhcp-interface eth0
+or (pppoe)
+set vpn l2tp remote-access outside-address 0.0.0.0
