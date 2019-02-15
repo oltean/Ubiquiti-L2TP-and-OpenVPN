@@ -24,6 +24,8 @@ organizationName		= QUICKCONFIGS
 organizationUnit		= QUICKCONFIGS
 commonName				= ROOT
 
+Hit enter for everything else and leave blank
+
 cp demoCA/cacert.pem /config/auth
 cp demoCA/private/cakey.pem /config/auth
 
@@ -141,7 +143,7 @@ Client on windows
 client
 dev tun
 proto udp
-remote 10.75.75.148 1194
+remote (Home Public IP) 1194
 float
 comp-lzo yes
 push "comp-lzo yes"
