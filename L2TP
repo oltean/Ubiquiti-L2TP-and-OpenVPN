@@ -26,3 +26,46 @@ or (dhcp)
 set vpn l2tp remote-access dhcp-interface eth0
 or (pppoe)
 set vpn l2tp remote-access outside-address 0.0.0.0
+
+
+firewall rules
+
+set firewall name WAN_LOCAL rule 21 action accept
+set firewall name WAN_LOCAL rule 21 description "Allow IKE for VPN L2TP Server"
+set firewall name WAN_LOCAL rule 21 destination port 500
+set firewall name WAN_LOCAL rule 21 log disable
+set firewall name WAN_LOCAL rule 21 protocol udp
+set firewall name WAN_LOCAL rule 21 state established enable
+set firewall name WAN_LOCAL rule 21 state invalid disable
+set firewall name WAN_LOCAL rule 21 state new enable
+set firewall name WAN_LOCAL rule 21 state related enable
+
+set firewall name WAN_LOCAL rule 22 action accept
+set firewall name WAN_LOCAL rule 22 description "Allow L2TP for VPN L2TP Server"
+set firewall name WAN_LOCAL rule 22 destination port 1701
+set firewall name WAN_LOCAL rule 22 log disable
+set firewall name WAN_LOCAL rule 22 protocol udp
+set firewall name WAN_LOCAL rule 22 state established enable
+set firewall name WAN_LOCAL rule 22 state invalid disable
+set firewall name WAN_LOCAL rule 22 state new enable
+set firewall name WAN_LOCAL rule 22 state related enable
+
+set firewall name WAN_LOCAL rule 23 action accept
+set firewall name WAN_LOCAL rule 23 description "Allow NAT-T for VPN L2TP Server"
+set firewall name WAN_LOCAL rule 23 destination port 4500
+set firewall name WAN_LOCAL rule 23 log disable
+set firewall name WAN_LOCAL rule 23 protocol udp
+set firewall name WAN_LOCAL rule 23 state established enable
+set firewall name WAN_LOCAL rule 23 state invalid disable
+set firewall name WAN_LOCAL rule 23 state new enable
+set firewall name WAN_LOCAL rule 23 state related enable
+
+set firewall name WAN_LOCAL rule 24 action accept
+set firewall name WAN_LOCAL rule 24 description "Allow ESP for VPN L2TP Server"
+set firewall name WAN_LOCAL rule 24 log disable
+set firewall name WAN_LOCAL rule 24 protocol esp
+or
+set firewall name WAN_LOCAL rule 24 protocol 50
+
+at $ prompt
+show vpn remote-access
