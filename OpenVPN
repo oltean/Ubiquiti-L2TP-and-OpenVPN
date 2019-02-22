@@ -157,3 +157,27 @@ cipher AES-256-CBC
 ca cacert.pem
 cert CLIENT.pem
 key CLIENT-NOPASS.key
+
+
+-------------------------
+
+PORT FORWARDING
+
+configure
+
+set port-forward auto-firewall enable
+set port-forward hairpin-nat enable
+set port-forward wan-interface eth0
+set port-forward lan-interface eth1
+
+set port-forward rule 1 description https443
+set port-forward rule 1 forward-to address 192.168.1.10
+set port-forward rule 1 forward-to port 443
+set port-forward rule 1 original-port 443
+set port-forward rule 1 protocol tcp
+
+set port-forward rule 2 description https10443
+set port-forward rule 2 forward-to address 192.168.1.10
+set port-forward rule 2 forward-to port 443
+set port-forward rule 2 original-port 10443
+set port-forward rule 2 protocol tcp
