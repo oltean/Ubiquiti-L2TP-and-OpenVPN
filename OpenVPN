@@ -70,7 +70,7 @@ set mode server
 set description OpenVPN
 set encryption aes256
 set hash sha256
-set server subnet 172.16.0.0/24
+set server subnet 10.200.200.0/24
 set server push-route 192.168.1.0/24
 set server name-server 8.8.8.8
 exit
