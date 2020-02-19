@@ -7,7 +7,7 @@ show interfaces | match /24
 Certificates
 
 configure
-set system date and time
+set system date and time (set date MMDDHHmmYYYY)
 commit
 save
 exit
